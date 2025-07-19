@@ -14,31 +14,35 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!productId) return;
 
-    fetch('https://active-memory-bc594e2e08.strapiapp.com/api/products?populate=*')
-      .then((res) => res.json())
-      .then((data) => {
-        const products = Array.isArray(data) ? data : data.data;
-        const found = products.find((p: any) => p.id === parseInt(productId as string));
+    const fetchData = async () => {
+      try {
+        const res = await fetch('https://active-memory-bc594e2e08.strapiapp.com/api/products?populate=*');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+
+        const found = data.data.find((p: any) => p.id === parseInt(productId as string));
         if (found) {
-          setProduct(found.attributes ? { ...found.attributes, id: found.id } : found);
+          setProduct(found);
         } else {
           setError('Product not found');
         }
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error(err);
         setError('Failed to fetch product');
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchData();
   }, [productId]);
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-red-600 text-center mt-10">{error}</p>;
 
   const imageUrl =
-    product?.image?.data?.[0]?.attributes?.url
-      ? `https://active-memory-bc594e2e08.strapiapp.com${product.image.data[0].attributes.url}`
+    product?.image?.[0]?.url
+      ? product.image[0].url
       : 'https://via.placeholder.com/200';
 
   return (

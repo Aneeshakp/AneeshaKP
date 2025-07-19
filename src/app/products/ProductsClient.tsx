@@ -17,17 +17,18 @@ interface Product {
 export default function ProductsClient() {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState('');
-  const searchParams = useSearchParams()!;
+  const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
-    fetch('https://active-memory-bc594e2e08.strapiapp.com/api/products?populate=*')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data.data)) {
-          const cleanProducts = data.data.map((item: any) => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('https://active-memory-bc594e2e08.strapiapp.com/api/products?populate=*');
+        const json = await res.json();
+        if (Array.isArray(json.data)) {
+          const cleanProducts = json.data.map((item: any) => {
             const attr = item.attributes;
-              const imageUrl = attr.image?.data?.[0]?.attributes?.url
+            const imageUrl = attr.image?.data?.[0]?.attributes?.url
               ? `https://active-memory-bc594e2e08.strapiapp.com${attr.image.data[0].attributes.url}`
               : 'https://via.placeholder.com/200';
             return {
@@ -36,7 +37,7 @@ export default function ProductsClient() {
               description: attr.description,
               price: attr.price,
               image: imageUrl,
-              color: attr.color,
+              color: attr.colour,
               availableQty: attr.availableQty,
             };
           });
@@ -44,9 +45,15 @@ export default function ProductsClient() {
         } else {
           setError('Invalid data format from API.');
         }
-      })
-      .catch(() => setError('Failed to fetch products.'));
+      } catch (e) {
+        setError('Failed to fetch products.');
+      }
+    };
+
+    fetchData();
   }, []);
+
+  if (!searchParams) return <p className="text-center mt-10">Loading filters...</p>;
 
   const qtyFilter = searchParams.get('qty')?.split(',').map(Number) || [];
   const colorFilter = searchParams.get('color')?.split(',') || [];
