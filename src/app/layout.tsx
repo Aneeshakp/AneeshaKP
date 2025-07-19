@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Shop e-Cart',
+  title: 'Shop e-Cart-appR',
   description: 'by Aneesha',
 };
 
