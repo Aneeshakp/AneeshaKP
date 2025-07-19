@@ -25,12 +25,14 @@ export default function ProductsClient() {
       try {
         const res = await fetch('https://active-memory-bc594e2e08.strapiapp.com/api/products?populate=*');
         const json = await res.json();
+
         if (Array.isArray(json.data)) {
           const cleanProducts = json.data.map((item: any) => {
             const attr = item.attributes;
             const imageUrl = attr.image?.data?.[0]?.attributes?.url
               ? `https://active-memory-bc594e2e08.strapiapp.com${attr.image.data[0].attributes.url}`
               : 'https://via.placeholder.com/200';
+
             return {
               id: item.id,
               title: attr.title,

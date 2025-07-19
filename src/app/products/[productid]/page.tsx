@@ -22,7 +22,14 @@ export default function ProductDetailPage() {
 
         const found = data.data.find((p: any) => p.id === parseInt(productId as string));
         if (found) {
-          setProduct(found);
+          const attr = found.attributes;
+          setProduct({
+            id: found.id,
+            ...attr,
+            image: attr.image?.data?.[0]?.attributes?.url
+              ? `https://active-memory-bc594e2e08.strapiapp.com${attr.image.data[0].attributes.url}`
+              : 'https://via.placeholder.com/200',
+          });
         } else {
           setError('Product not found');
         }
@@ -40,15 +47,10 @@ export default function ProductDetailPage() {
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-red-600 text-center mt-10">{error}</p>;
 
-  const imageUrl =
-    product?.image?.[0]?.url
-      ? product.image[0].url
-      : 'https://via.placeholder.com/200';
-
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <img
-        src={imageUrl}
+        src={product.image}
         alt={product.title}
         className="h-80 mx-auto mb-4 object-contain"
       />

@@ -4,19 +4,19 @@ export default async function ProductGrid() {
   const res = await fetch('https://active-memory-bc594e2e08.strapiapp.com/api/products?populate=*', {
     cache: 'no-store',
   });
-
   const json = await res.json();
 
   const products = json.data.map((item: any) => {
-    const imageUrl = item.image?.[0]?.url
-      ? item.image[0].url
+    const attr = item.attributes;
+    const imageUrl = attr.image?.data?.[0]?.attributes?.url
+      ? `https://active-memory-bc594e2e08.strapiapp.com${attr.image.data[0].attributes.url}`
       : 'https://via.placeholder.com/200';
 
     return {
       id: item.id,
-      title: item.title,
-      description: item.description,
-      price: item.price,
+      title: attr.title,
+      description: attr.description,
+      price: attr.price,
       image: imageUrl,
     };
   });
