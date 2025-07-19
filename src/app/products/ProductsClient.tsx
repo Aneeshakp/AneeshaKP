@@ -21,38 +21,39 @@ export default function ProductsClient() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('https://active-memory-bc594e2e08.strapiapp.com/api/products?populate=*');
-        const json = await res.json();
+    fetch(
+      'https://active-memory-bc594e2e08.strapiapp.com/api/products?populate=*'
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const productsArray = Array.isArray(data.data)
+          ? data.data
+          : [data.data];
+        console.log('cleanProducts45', productsArray);
 
-        if (Array.isArray(json.data)) {
-          const cleanProducts = json.data.map((item: any) => {
-            const attr = item.attributes;
-            const imageUrl = attr.image?.data?.[0]?.attributes?.url
-              ? `https://active-memory-bc594e2e08.strapiapp.com${attr.image.data[0].attributes.url}`
-              : 'https://via.placeholder.com/200';
+        const cleanProducts = productsArray.map((item: any) => {
+          const attr = item.attributes || item;
+          const imageUrl =
+            attr.image?.[0]?.formats?.thumbnail?.url ||
+            attr.image?.[0]?.url ||
+            'https://via.placeholder.com/200';
 
-            return {
-              id: item.id,
-              title: attr.title,
-              description: attr.description,
-              price: attr.price,
-              image: imageUrl,
-              color: attr.colour,
-              availableQty: attr.availableQty,
-            };
-          });
-          setProducts(cleanProducts);
-        } else {
-          setError('Invalid data format from API.');
-        }
-      } catch (e) {
+          return {
+            id: item.id,
+            title: attr.title,
+            description: attr.description,
+            price: attr.price,
+            image: imageUrl,
+            color: attr.colour,
+            availableQty: attr.availableQty,
+          };
+        });
+
+        setProducts(cleanProducts);
+      })
+      .catch((err) => {
         setError('Failed to fetch products.');
-      }
-    };
-
-    fetchData();
+      });
   }, []);
 
   if (!searchParams) return <p className="text-center mt-10">Loading filters...</p>;

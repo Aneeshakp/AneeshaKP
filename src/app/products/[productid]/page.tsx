@@ -22,13 +22,16 @@ export default function ProductDetailPage() {
 
         const found = data.data.find((p: any) => p.id === parseInt(productId as string));
         if (found) {
-          const attr = found.attributes;
+          const attr = found.attributes || found;
+          const imageUrl =
+            attr.image?.[0]?.formats?.thumbnail?.url ||
+            attr.image?.[0]?.url ||
+            'https://via.placeholder.com/200';
+
           setProduct({
             id: found.id,
             ...attr,
-            image: attr.image?.data?.[0]?.attributes?.url
-              ? `https://active-memory-bc594e2e08.strapiapp.com${attr.image.data[0].attributes.url}`
-              : 'https://via.placeholder.com/200',
+            image: imageUrl,
           });
         } else {
           setError('Product not found');
